@@ -10,7 +10,7 @@ import sys
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument("-t", "--type", type=str,
-                    default="DICT_ARUCO_ORIGINAL",
+                    default="DICT_6X6_250",
                     help="type of ArUCo tag to detect")
     args = vars(ap.parse_args())
 
@@ -52,8 +52,6 @@ if __name__ == '__main__':
     time.sleep(2.0)
 
     while True:
-        import pdb
-        pdb.set_trace()
         # grab the frame from the threaded video stream and resize it
         # to have a maximum width of 1000 pixels
         frame = vs.read()
