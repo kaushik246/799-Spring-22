@@ -20,7 +20,7 @@ img_points = []
 obj_p = np.zeros((1, checkerboard_dim[0] * checkerboard_dim[1], 3), np.float32)
 obj_p[0,:,:2] = np.mgrid[0:checkerboard_dim[0], 0:checkerboard_dim[1]].T.reshape(-1, 2)
 
-images = glob.glob('./images/*.jpg')
+images = glob.glob('./../images/*.jpg')
 for filename in images:
     img = cv2.imread(filename)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -42,16 +42,17 @@ for filename in images:
 
         h,w = img.shape[:2]
 
-# Making camera calibration by passing 3d points and correponding 2d co-ordinates
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, gray.shape[::-1], None, None)
-print("Camera matrix : \n")
-print(mtx)
-print("dist : \n")
-print(dist)
-print("rvecs : \n")
-print(rvecs)
-print("tvecs : \n")
-print(tvecs)
+    # Making camera calibration by passing 3d points and correponding 2d co-ordinates
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, gray.shape[::-1], None, None)
+
+    print("Camera matrix : \n")
+    print(mtx)
+    print("dist : \n")
+    print(dist)
+    print("rvecs : \n")
+    print(rvecs)
+    print("tvecs : \n")
+    print(tvecs)
 
 
 

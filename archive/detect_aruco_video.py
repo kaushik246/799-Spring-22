@@ -6,6 +6,7 @@ import imutils
 import time
 import cv2
 import sys
+import numpy as np
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
@@ -51,52 +52,53 @@ if __name__ == '__main__':
     vs = VideoStream(src=0).start()
     time.sleep(2.0)
 
+    cam_mat = np.array([[466.53298054, 0, 510.9976065, 0], [0, 475.71636522, 358.52360012, 0], [0, 0, 1, 0]])
+    inv_cam_mat = np.linalg.inv(cam_mat)
+
     while True:
-        # grab the frame from the threaded video stream and resize it
-        # to have a maximum width of 1000 pixels
         frame = vs.read()
         frame = imutils.resize(frame, width=1000)
 
-        # detect ArUco markers in the input frame
         (corners, ids, rejected) = cv2.aruco.detectMarkers(frame,
                                                            arucoDict, parameters=arucoParams)
-        # verify *at least* one ArUco marker was detected
         if len(corners) > 0:
-            # flatten the ArUco IDs list
+            center_point_x = 0
+            center_point_y = 0
             ids = ids.flatten()
 
-            # loop over the detected ArUCo corners
             for (markerCorner, markerID) in zip(corners, ids):
-                # extract the marker corners (which are always returned
-                # in top-left, top-right, bottom-right, and bottom-left
-                # order)
                 corners = markerCorner.reshape((4, 2))
                 (topLeft, topRight, bottomRight, bottomLeft) = corners
 
-                # convert each of the (x, y)-coordinate pairs to integers
                 topRight = (int(topRight[0]), int(topRight[1]))
                 bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
                 bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
                 topLeft = (int(topLeft[0]), int(topLeft[1]))
 
-                # draw the bounding box of the ArUCo detection
                 cv2.line(frame, topLeft, topRight, (0, 255, 0), 2)
                 cv2.line(frame, topRight, bottomRight, (0, 255, 0), 2)
                 cv2.line(frame, bottomRight, bottomLeft, (0, 255, 0), 2)
                 cv2.line(frame, bottomLeft, topLeft, (0, 255, 0), 2)
 
-                # compute and draw the center (x, y)-coordinates of the
-                # ArUco marker
                 cX = int((topLeft[0] + bottomRight[0]) / 2.0)
                 cY = int((topLeft[1] + bottomRight[1]) / 2.0)
+                center_point_x += cX
+                center_point_y += cY
                 cv2.circle(frame, (cX, cY), 4, (0, 0, 255), -1)
 
-                # draw the ArUco marker ID on the frame
-                cv2.putText(frame, str(markerID),
+                cv2.putText(frame, "(" + str(cX) + " " + str(cY) + ")",
                     (topLeft[0], topLeft[1] - 15),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, (0, 255, 0), 2)
-         # show the output frame
+            center_point_x = center_point_x/4.0
+            center_point_y = center_point_y/4.0
+            three_d_points = np.dot(inv_cam_mat, [center_point_x, center_point_y, 1])
+            print(three_d_points)
+            cv2.putText(frame, "(" + str(center_point_x) + " " + str(center_point_y) + ")",
+                        (500, 500),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (0, 255, 0), 2)
+
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
 
