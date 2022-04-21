@@ -80,7 +80,6 @@ class TagDetector:
 
     def detect_markers(self):
         image = cv2.imread(self.img_path)
-        image = imutils.resize(image, width=600)
 
         if self.aruco_dict.get(self.marker_type, None) is None:
             print("[INFO] ArUCo tag of '{}' is not supported".format(
@@ -114,13 +113,12 @@ class TagDetector:
 
     def compute_center(self):
         n = len(self.points['x'])
-        c_x = sum(self.points['x'])/n
-        c_y = sum(self.points['y'])/n
-        import pdb
-        pdb.set_trace()
-        return (c_x, c_y)
-
-
+        if n == 4:
+            c_x = sum(self.points['x'])/n
+            c_y = sum(self.points['y'])/n
+            return (c_x, c_y, n)
+        else:
+            return (0, 0, 0)
 
 
 class Calibration:
@@ -154,15 +152,31 @@ if __name__ == '__main__':
     camera_obj = Camera(checkerboard_path, (6, 9))
     camera_obj.calibrate()
 
-    tag_path = "./tags/tags"
+    images_path = './tags'
+    tag_images = glob.glob(images_path + '/*.jpg')
+    '''
     tag_detection_obj = TagDetector(tag_path, "DICT_6X6_250")
     tag_detection_obj.detect_markers()
     (c_x, c_y) = tag_detection_obj.compute_center()
-
-    for i in range(1, 50):
-        tag_path += '_' + str(i) + '.png'
-        tag_detection_obj = TagDetector(tag_path, "DICT_6X6_250")
+    '''
+    '''
+    for image in tag_images:
+        tag_detection_obj = TagDetector(image, "DICT_6X6_250")
         tag_detection_obj.detect_markers()
-        (c_x, c_y) = tag_detection_obj.compute_center()
+        (c_x, c_y, tags_detected) = tag_detection_obj.compute_center()
+        if tags_detected == 4:
+            print(image + ": " + str(c_x) +',' + str(c_y))
+    '''
 
-        tag_path = "./tags/tags"
+    with open('./points.txt') as file:
+        lines = file.readlines()
+        for line in lines:
+            data = line.strip().split(": ")
+            filename, points = data[0], data[1]
+            coord_data = points.split("|")
+            computed, real = coord_data[0], coord_data[1]
+            computed_x, computed_y = float(computed.split(',')[0]), float(computed.split(',')[1])
+            real_x, real_y = float(real.split(',')[0]), float(real.split(',')[1])
+            x_diff, y_diff = abs(computed_x-real_x), abs(computed_y-real_y)
+            x_percent, y_percent = x_diff/1080*100, y_diff/720*100
+            print(x_percent, y_percent, (x_percent+y_percent)/2)

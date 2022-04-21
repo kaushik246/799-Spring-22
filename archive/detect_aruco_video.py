@@ -52,8 +52,8 @@ if __name__ == '__main__':
     vs = VideoStream(src=0).start()
     time.sleep(2.0)
 
-    cam_mat = np.array([[466.53298054, 0, 510.9976065, 0], [0, 475.71636522, 358.52360012, 0], [0, 0, 1, 0]])
-    inv_cam_mat = np.linalg.inv(cam_mat)
+    #cam_mat = np.array([[466.53298054, 0, 510.9976065, 0], [0, 475.71636522, 358.52360012, 0], [0, 0, 1, 0]])
+    #inv_cam_mat = np.linalg.inv(cam_mat)
 
     while True:
         frame = vs.read()
@@ -92,8 +92,8 @@ if __name__ == '__main__':
                     0.5, (0, 255, 0), 2)
             center_point_x = center_point_x/4.0
             center_point_y = center_point_y/4.0
-            three_d_points = np.dot(inv_cam_mat, [center_point_x, center_point_y, 1])
-            print(three_d_points)
+            #three_d_points = np.dot(inv_cam_mat, [center_point_x, center_point_y, 1])
+            #print(three_d_points)
             cv2.putText(frame, "(" + str(center_point_x) + " " + str(center_point_y) + ")",
                         (500, 500),
                         cv2.FONT_HERSHEY_SIMPLEX,
