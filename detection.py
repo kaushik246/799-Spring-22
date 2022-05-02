@@ -170,6 +170,7 @@ if __name__ == '__main__':
 
     with open('./points.txt') as file:
         lines = file.readlines()
+        count =0
         for line in lines:
             data = line.strip().split(": ")
             filename, points = data[0], data[1]
@@ -178,5 +179,6 @@ if __name__ == '__main__':
             computed_x, computed_y = float(computed.split(',')[0]), float(computed.split(',')[1])
             real_x, real_y = float(real.split(',')[0]), float(real.split(',')[1])
             x_diff, y_diff = abs(computed_x-real_x), abs(computed_y-real_y)
-            x_percent, y_percent = x_diff/1080*100, y_diff/720*100
-            print(x_percent, y_percent, (x_percent+y_percent)/2)
+            x_percent, y_percent = x_diff, y_diff
+            count +=1
+            print(count, " :", "x_diff: ", x_percent, "y_diff: ", y_percent, "\ndist : ", math.sqrt(x_percent**2 + y_percent**2))
